@@ -1,0 +1,1 @@
+export const CIRCLE_RADIUS_DEFAULT = 50;
