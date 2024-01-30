@@ -16,7 +16,7 @@ const EditorToolbox = () => {
     return (
         <form action="#" className="flex flex-col">
             {
-                ["NONE", "CIRCLE", "RECTANGLE", "SELECTION"].map(item => (
+                ["CIRCLE", "RECTANGLE", "SELECTION"].map(item => (
                     <React.Fragment key={item}>
                         <input onChange={e => handleChangeToolboxMode(e.target.value as ToolboxSelection)} type="radio"
                                name="toolbox" id={item} value={item} checked={toolboxSelectedMode === item}/>

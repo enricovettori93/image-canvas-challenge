@@ -25,26 +25,27 @@ export const loadFileIntoCanvas = (file: File) => {
     });
 }
 
+export const calculateDistanceBetweenPoints = (p1: Point, p2: Point) => {
+    return Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
+}
+
 export const calculateCenterAndRadius = (p1: Point, p2: Point) => {
-    const distanceBetweenPoints = Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
     const medianPoint = {
         x: ((p1.x + p2.x) / 2),
         y: ((p1.y + p2.y) / 2)
     }
-    const radius = distanceBetweenPoints / 2;
     return {
-        radius,
+        radius: calculateDistanceBetweenPoints(p1, p2) / 2,
         x: medianPoint.x,
         y: medianPoint.y
     }
 }
 
-// todo: is it ok?
 export const calculateFourAngles = (p1: Point, p2: Point) => {
     const points: Point[] = [];
     points.push(p1);
-    points.push({x: p1.x, y: p2.y});
     points.push({x: p2.x, y: p1.y});
+    points.push({x: p1.x, y: p2.y});
     points.push(p2);
     return points;
 }

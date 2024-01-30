@@ -1,8 +1,7 @@
 export enum ToolboxSelection {
     "CIRCLE" = "CIRCLE",
     "RECTANGLE" = "RECTANGLE",
-    "SELECTION" = "SELECTION",
-    "NONE" = "NONE"
+    "SELECTION" = "SELECTION"
 }
 
 export interface ImageMetadata {

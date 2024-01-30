@@ -18,3 +18,15 @@ body {
     width: 100vw;
     padding: 1em;
 }
+
+.circle {
+    opacity: 0.5;
+}
+
+.circle:hover {
+    opacity: 1;
+}
+
+.circle.selected {
+    opacity: 1;
+}

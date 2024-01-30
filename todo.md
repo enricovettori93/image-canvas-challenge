@@ -2,7 +2,7 @@
 - Type any
 - FTUE to show how it works
 - Better UI (maybe)
-- Instead of d&d the canvas -> consider the possibility to click 2 times
+- Adjust coordinates using 0 - 1
 
 **Known bugs**
 - Need to use two time the "load image" button

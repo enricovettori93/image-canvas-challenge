@@ -1,56 +1,138 @@
 import {Circle as CircleObject} from "../../../shared/interfaces/Annotation.ts";
-import {CIRCLE_RADIUS_DEFAULT} from "../../../shared/constants";
 import {Point} from "../../../shared/interfaces/Point.ts";
-import Draggable from "../Draggable";
+import React, {createRef, useEffect, useState} from "react";
+import {calculateDistanceBetweenPoints} from "../../../shared/helpers";
 
 interface props {
-    canSelect: boolean
     isSelected: boolean
     circle: CircleObject
-    handleClick: () => void
-    // todo: tipizza
-    handleUpdateMove: (coordinate: Point) => void
-    handleUpdateRadius: () => void
+    handleClick: (id: string) => void
+    handleUpdateAnnotation: (annotation: CircleObject) => void
 }
 
-const Circle = ({circle, canSelect, handleUpdateMove, handleUpdateRadius, isSelected, handleClick}: props) => {
+const Circle = ({circle, handleUpdateAnnotation, isSelected, handleClick}: props) => {
+    const elementRef = createRef<SVGCircleElement>();
+    const [position, setPosition] = React.useState<Point & { radius: number }>({
+        x: circle.center.x,
+        y: circle.center.y,
+        radius: circle.radius
+    });
+    const [currentEvent, setCurrentEvent] = useState<"scale" | "drag" | null>(null);
+
+    useEffect(() => {
+        setPosition({
+            radius: circle.radius,
+            x: circle.center.x,
+            y: circle.center.y
+        });
+    }, [circle]);
+
     // todo: tipizza
-    const handleDragStart = (e: any) => {
+    const dragStart = (e: any) => {
         if (!isSelected) return;
         console.log("drag start", {...e});
+        e.preventDefault();
+        setCurrentEvent("drag");
     }
 
     // todo: tipizza
-    const handleDragEnd = (e: any) => {
-        if (!isSelected) return;
+    const dragEnd = (e: any) => {
+        if (!isSelected || currentEvent !== "drag") return;
         console.log("drag end", {...e});
-        handleUpdateMove({x: e.clientX, y: e.clientY});
+        e.preventDefault();
+        setCurrentEvent(null);
+        handleUpdateAnnotation({...circle, center: {x: e.clientX, y: e.clientY}});
+    }
+
+    // todo: tipizza
+    const dragging = (e: any) => {
+        if (!isSelected || currentEvent !== "drag") return;
+        console.log("dragging", {...e}, currentEvent);
+        e.preventDefault();
+        setPosition(prev => ({
+            ...prev,
+            x: e.clientX,
+            y: e.clientY,
+        }));
+    }
+
+    // todo: tipizza
+    const scaleStart = (e: any) => {
+        if (!isSelected) return;
+        console.log("scale start", {...e});
+        e.preventDefault();
+        setCurrentEvent("scale");
+    }
+
+    // todo: tipizza
+    const scaleEnd = (e: any) => {
+        if (!isSelected || currentEvent !== "scale") return;
+        console.log("scaling end", {...e});
+        e.preventDefault();
+        setCurrentEvent(null);
+        // console.log("scaling end distance", calculateDistanceBetweenPoints(circle.center, {x: e.clientX, y: e.clientY}));
+        handleUpdateAnnotation({...circle, radius: calculateDistanceBetweenPoints(circle.center, {x: e.clientX, y: e.clientY})});
+    }
+
+    // todo: tipizza
+    const scaling = (e: any) => {
+        if (!isSelected || currentEvent !== "scale") return;
+        console.log("scaling", {...e});
+        e.preventDefault();
+        // console.log("scaling distance calcolo", calculateDistanceBetweenPoints(circle.center, {x: e.clientX, y: e.clientY}));
+        setPosition(prev => ({
+            ...prev,
+            radius: calculateDistanceBetweenPoints(circle.center, {x: e.clientX, y: e.clientY})
+        }));
+    }
+
+    // todo: tipizza
+    const onClick = (e: any) => {
+        // console.log("on click -> isDragging", isDragging)
+        if (currentEvent === "drag") return;
+        e.preventDefault();
+        handleClick(circle.id);
     }
 
     return (
-        <Draggable
-            canDrag={isSelected}
-            handleDragStart={handleDragStart}
-            handleDragEnd={handleDragEnd}
-        >
-            <div
-                className={`rounded-full flex justify-center items-center bg-red-200 ${(canSelect && !isSelected) && "hover:bg-red-300 cursor-pointer"} ${isSelected && "bg-red-500 cursor-grab"} w-2 h-2 absolute z-[9999]`}
-                onClick={handleClick}
-                style={{
-                    width: circle.radius,
-                    height: circle.radius,
-                    "marginLeft": circle.center?.x - CIRCLE_RADIUS_DEFAULT,
-                    "marginTop": circle.center?.y - CIRCLE_RADIUS_DEFAULT
+        <>
+            <circle
+                ref={elementRef}
+                onClick={onClick}
+                cx={position.x}
+                cy={position.y}
+                r={position.radius}
+                stroke="black"
+                strokeWidth="1"
+                fill="red"
+                className={`circle ${isSelected && "selected"}`}
+                {...isSelected && {
+                    onMouseDown: dragStart,
+                    onMouseUp: dragEnd,
+                    onMouseMove: dragging
                 }}
+            />
+            <circle
+                cx={position.x}
+                cy={position.y - circle.radius}
+                r="5"
+                fill="black"
+                {...isSelected && {
+                    onMouseDown: scaleStart,
+                    onMouseUp: scaleEnd,
+                    onMouseMove: scaling
+                }}
+            />
+            <text
+                x={position.x}
+                y={position.y}
+                strokeWidth="1px"
+                textAnchor="middle"
+                alignmentBaseline="central"
             >
-                <span className="right-1/2 left-1/2 top-1/2 text-black font-light">{circle.tag}</span>
-                {
-                    isSelected && (
-                        <div className="absolute top-[-3px] left-1/2 right-1/2 bg-black w-2 h-2 rounded-full"></div>
-                    )
-                }
-            </div>
-        </Draggable>
+                {circle.tag}
+            </text>
+        </>
     );
 };
 
