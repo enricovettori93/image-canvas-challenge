@@ -25,10 +25,20 @@ export const loadFileIntoCanvas = (file: File) => {
     });
 }
 
+/**
+ * Calculate the distance between two points using the Pitagora's theorem
+ * @param p1
+ * @param p2
+ */
 export const calculateDistanceBetweenPoints = (p1: Point, p2: Point) => {
     return Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
 }
 
+/**
+ * Calculate the radius and the center between two points for generate a circle
+ * @param p1
+ * @param p2
+ */
 export const calculateCenterAndRadius = (p1: Point, p2: Point) => {
     const medianPoint = {
         x: ((p1.x + p2.x) / 2),
@@ -41,6 +51,17 @@ export const calculateCenterAndRadius = (p1: Point, p2: Point) => {
     }
 }
 
+/**
+ * Calculate from two points the 4 points required for a rectangle
+ *
+ * p[0] --- p[1]
+ * |          |
+ * |          |
+ * p[2] --- p[3]
+ *
+ * @param p1
+ * @param p2
+ */
 export const calculateFourAngles = (p1: Point, p2: Point) => {
     const points: Point[] = [];
     points.push(p1);

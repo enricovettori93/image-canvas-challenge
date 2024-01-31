@@ -9,7 +9,8 @@ export default class AnnotationFactory {
         // todo: normalizzare la coordinata
         const {x, y, radius} = calculateCenterAndRadius(initial, final);
         // todo: fai meglio
-        const tag = prompt("Please enter an annotation tag");
+        // const tag = prompt("Please enter an annotation tag");
+        const tag = "asd"
         return { id: uuidv4(), tag: `${tag}`, center: { x, y }, radius: radius || CIRCLE_RADIUS_DEFAULT };
     }
 
@@ -17,7 +18,8 @@ export default class AnnotationFactory {
         // todo: normalizzare la coordinata
         const points = calculateFourAngles(initial, final);
         // todo: fai meglio
-        const tag = prompt("Please enter an annotation tag");
+        // const tag = prompt("Please enter an annotation tag");
+        const tag = "asd"
         return { id: uuidv4(), tag: `${tag}`, points };
     }
 }

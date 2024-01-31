@@ -1,96 +1,56 @@
+import React, {createRef} from "react";
 import {Circle as CircleObject} from "../../../shared/interfaces/Annotation.ts";
 import {Point} from "../../../shared/interfaces/Point.ts";
-import React, {createRef, useEffect, useState} from "react";
-import {calculateDistanceBetweenPoints} from "../../../shared/helpers";
+import useDragOrScale from "../../../shared/hooks/useDragOrScale.ts";
 
 interface props {
-    isSelected: boolean
     circle: CircleObject
+    isSelected: boolean
     handleClick: (id: string) => void
     handleUpdateAnnotation: (annotation: CircleObject) => void
 }
 
 const Circle = ({circle, handleUpdateAnnotation, isSelected, handleClick}: props) => {
     const elementRef = createRef<SVGCircleElement>();
-    const [position, setPosition] = React.useState<Point & { radius: number }>({
-        x: circle.center.x,
-        y: circle.center.y,
-        radius: circle.radius
+    const edgeRef = createRef<SVGCircleElement>();
+
+    const {
+        position: centerPosition,
+        eventStart: dragStart,
+        eventEnd: dragEnd,
+        eventDoing: dragging,
+    } = useDragOrScale({
+        mainPoint: circle.center,
+        isSelected,
+        eventType: "drag",
+        offset: 50
     });
-    const [currentEvent, setCurrentEvent] = useState<"scale" | "drag" | null>(null);
 
-    useEffect(() => {
-        setPosition({
-            radius: circle.radius,
+    const {
+        position: dragEdgePosition,
+        eventStart: scaleStart,
+        eventEnd: scaleEnd,
+        eventDoing: scaling,
+        currentEvent: scalingEvent
+    } = useDragOrScale({
+        mainPoint: {
             x: circle.center.x,
-            y: circle.center.y
-        });
-    }, [circle]);
+            y: circle.center.y + circle.radius
+        },
+        isSelected,
+        eventType: "scale",
+        offset: 50
+    });
 
-    // todo: tipizza
-    const dragStart = (e: any) => {
-        if (!isSelected) return;
-        console.log("drag start", {...e});
-        e.preventDefault();
-        setCurrentEvent("drag");
-    }
+    const radius = scalingEvent === "scale" ? Math.abs(circle.center.y - dragEdgePosition.y) : circle.radius;
 
-    // todo: tipizza
-    const dragEnd = (e: any) => {
-        if (!isSelected || currentEvent !== "drag") return;
-        console.log("drag end", {...e});
-        e.preventDefault();
-        setCurrentEvent(null);
-        handleUpdateAnnotation({...circle, center: {x: e.clientX, y: e.clientY}});
-    }
+    const edgePoint: Point = {
+        x: centerPosition.x,
+        y: centerPosition.y + radius
+    };
 
-    // todo: tipizza
-    const dragging = (e: any) => {
-        if (!isSelected || currentEvent !== "drag") return;
-        console.log("dragging", {...e}, currentEvent);
-        e.preventDefault();
-        setPosition(prev => ({
-            ...prev,
-            x: e.clientX,
-            y: e.clientY,
-        }));
-    }
-
-    // todo: tipizza
-    const scaleStart = (e: any) => {
-        if (!isSelected) return;
-        console.log("scale start", {...e});
-        e.preventDefault();
-        setCurrentEvent("scale");
-    }
-
-    // todo: tipizza
-    const scaleEnd = (e: any) => {
-        if (!isSelected || currentEvent !== "scale") return;
-        console.log("scaling end", {...e});
-        e.preventDefault();
-        setCurrentEvent(null);
-        // console.log("scaling end distance", calculateDistanceBetweenPoints(circle.center, {x: e.clientX, y: e.clientY}));
-        handleUpdateAnnotation({...circle, radius: calculateDistanceBetweenPoints(circle.center, {x: e.clientX, y: e.clientY})});
-    }
-
-    // todo: tipizza
-    const scaling = (e: any) => {
-        if (!isSelected || currentEvent !== "scale") return;
-        console.log("scaling", {...e});
-        e.preventDefault();
-        // console.log("scaling distance calcolo", calculateDistanceBetweenPoints(circle.center, {x: e.clientX, y: e.clientY}));
-        setPosition(prev => ({
-            ...prev,
-            radius: calculateDistanceBetweenPoints(circle.center, {x: e.clientX, y: e.clientY})
-        }));
-    }
-
-    // todo: tipizza
-    const onClick = (e: any) => {
-        // console.log("on click -> isDragging", isDragging)
-        if (currentEvent === "drag") return;
-        e.preventDefault();
+    const onClick = (e: React.MouseEvent<SVGCircleElement>) => {
+        e.stopPropagation();
         handleClick(circle.id);
     }
 
@@ -99,33 +59,40 @@ const Circle = ({circle, handleUpdateAnnotation, isSelected, handleClick}: props
             <circle
                 ref={elementRef}
                 onClick={onClick}
-                cx={position.x}
-                cy={position.y}
-                r={position.radius}
+                cx={centerPosition.x}
+                cy={centerPosition.y}
+                r={radius}
                 stroke="black"
                 strokeWidth="1"
                 fill="red"
                 className={`circle ${isSelected && "selected"}`}
                 {...isSelected && {
                     onMouseDown: dragStart,
-                    onMouseUp: dragEnd,
-                    onMouseMove: dragging
+                    onMouseMove: dragging,
+                    onMouseUp: (e) => {
+                        dragEnd(e);
+                        handleUpdateAnnotation({...circle, center: centerPosition});
+                    },
                 }}
             />
             <circle
-                cx={position.x}
-                cy={position.y - circle.radius}
-                r="5"
+                ref={edgeRef}
+                cx={edgePoint.x}
+                cy={edgePoint.y}
+                r="10"
                 fill="black"
                 {...isSelected && {
                     onMouseDown: scaleStart,
-                    onMouseUp: scaleEnd,
-                    onMouseMove: scaling
+                    onMouseMove: scaling,
+                    onMouseUp: (e) => {
+                        scaleEnd(e);
+                        handleUpdateAnnotation({...circle, radius: Math.abs(circle.center.y - dragEdgePosition.y)});
+                    }
                 }}
             />
             <text
-                x={position.x}
-                y={position.y}
+                x={centerPosition.x}
+                y={centerPosition.y}
                 strokeWidth="1px"
                 textAnchor="middle"
                 alignmentBaseline="central"

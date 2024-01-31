@@ -11,9 +11,9 @@ import {
     updateAnnotation
 } from "../../store/features/annotations/annotationSlice.ts";
 import {ToolboxSelection} from "../../store/features/ui/types.ts";
-import {Circle} from "../../shared/interfaces/Annotation.ts";
+import {Circle, Rectangle} from "../../shared/interfaces/Annotation.ts";
 import {X_CANVAS_DELTA, Y_CANVAS_DELTA} from "../../shared/constants";
-import Rectangle from "./Rectangle";
+import {default as RectangleComponent} from "./Rectangle";
 
 const Canvas = () => {
     const canvasRef = createRef<HTMLCanvasElement>();
@@ -100,7 +100,7 @@ const Canvas = () => {
         }
     }
 
-    const handleUpdateAnnotation = (item: Circle) => {
+    const handleUpdateAnnotation = (item: Circle | Rectangle) => {
         dispatch(updateAnnotation(item));
     }
 
@@ -110,24 +110,28 @@ const Canvas = () => {
 
     return (
         <div className="relative">
-            <svg className={`absolute w-full h-full ${toolboxSelectedMode !== ToolboxSelection.SELECTION && "pointer-events-none"}`} xmlns="http://www.w3.org/2000/svg">
+            <svg
+                className={`absolute w-full h-full ${toolboxSelectedMode !== ToolboxSelection.SELECTION && "pointer-events-none"}`}
+                xmlns="http://www.w3.org/2000/svg">
                 {
                     circles.map(item => (
                         <CircleComponent
                             key={item.id}
                             circle={item}
                             isSelected={item.id === selectedAnnotationId}
-                            handleUpdateAnnotation={handleUpdateAnnotation }
+                            handleUpdateAnnotation={handleUpdateAnnotation}
                             handleClick={handleClick}
                         />
                     ))
                 }
                 {
-                    // todo: fare tutte le props etc
                     rectangles.map(item => (
-                        <Rectangle
+                        <RectangleComponent
                             key={item.id}
                             rectangle={item}
+                            isSelected={item.id === selectedAnnotationId}
+                            handleUpdateAnnotation={handleUpdateAnnotation}
+                            handleClick={handleClick}
                         />
                     ))
                 }
