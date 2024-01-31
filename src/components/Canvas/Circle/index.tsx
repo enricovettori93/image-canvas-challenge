@@ -70,8 +70,8 @@ const Circle = ({circle, handleUpdateAnnotation, isSelected, handleClick}: props
                     onMouseDown: dragStart,
                     onMouseMove: dragging,
                     onMouseUp: (e) => {
-                        handleUpdateAnnotation({...circle, center: centerPosition});
                         dragEnd(e);
+                        handleUpdateAnnotation({...circle, center: centerPosition});
                     },
                 }}
             />
@@ -86,10 +86,8 @@ const Circle = ({circle, handleUpdateAnnotation, isSelected, handleClick}: props
                     onMouseDown: scaleStart,
                     onMouseMove: scaling,
                     onMouseUp: (e) => {
-                        const radius = Math.abs(circle.center.y - dragEdgePosition.y);
-                        console.log("radius mouse up", radius)
-                        handleUpdateAnnotation({...circle, radius });
                         scaleEnd(e);
+                        handleUpdateAnnotation({...circle, radius: Math.abs(circle.center.y - dragEdgePosition.y) });
                     }
                 }}
             />
