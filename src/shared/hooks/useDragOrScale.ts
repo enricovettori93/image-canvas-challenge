@@ -26,7 +26,7 @@ const useScale = ({isSelected, mainPoint, eventType, offset = 50}: props) => {
     // todo: tipizza
     const eventStart = (e: any) => {
         if (!isSelected) return;
-        console.log(`>> event ${eventType} start`, {x: e.clientX, y: e.clientY});
+        // console.log(`>> event ${eventType} start`, {x: e.clientX, y: e.clientY});
         e.stopPropagation();
         setCurrentEvent(eventType);
     }
@@ -34,7 +34,7 @@ const useScale = ({isSelected, mainPoint, eventType, offset = 50}: props) => {
     // todo: tipizza
     const eventEnd = (e: any) => {
         if (!isSelected || currentEvent !== eventType) return;
-        console.log(`>> event ${eventType} end`, {x: e.clientX, y: e.clientY});
+        // console.log(`>> event ${eventType} end`, {x: e.clientX, y: e.clientY});
         e.stopPropagation();
         setCurrentEvent(null);
     }
@@ -42,7 +42,7 @@ const useScale = ({isSelected, mainPoint, eventType, offset = 50}: props) => {
     // todo: tipizza
     const eventDoing = (e: any) => {
         if (!isSelected || currentEvent !== eventType) return;
-        console.log(`>> event ${eventType} doing`, {x: e.clientX, y: e.clientY});
+        // console.log(`>> event ${eventType} doing`, {x: e.clientX, y: e.clientY});
         e.stopPropagation();
         setPosition({
             x: e.clientX - offset,

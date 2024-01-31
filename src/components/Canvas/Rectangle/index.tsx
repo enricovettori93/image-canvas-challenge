@@ -1,7 +1,7 @@
 import {Rectangle as RectangleObject} from "../../../shared/interfaces/Annotation.ts";
 import {calculateDistanceBetweenPoints} from "../../../shared/helpers";
-import useDrag from "../../../shared/hooks/useDrag.ts";
-import {createRef, useEffect} from "react";
+import React from "react";
+import useDragOrScale from "../../../shared/hooks/useDragOrScale.ts";
 
 interface props {
     rectangle: RectangleObject
@@ -11,30 +11,30 @@ interface props {
 }
 
 const Rectangle = ({rectangle, isSelected, handleClick, handleUpdateAnnotation}: props) => {
-    const elementRef = createRef<SVGRectElement>();
     const [topLeft, topRight, bottomLeft, bottomRight] = rectangle.points;
     const width = calculateDistanceBetweenPoints(topLeft, topRight);
     const height = calculateDistanceBetweenPoints(topLeft, bottomLeft);
-    console.log(topLeft, topRight, bottomLeft, bottomRight)
 
-    const {position, dragStart, dragEnd, dragging, currentEvent} = useDrag({
-        annotationRef: elementRef,
+    const {
+        position,
+        eventStart: dragStart,
+        eventEnd: dragEnd,
+        eventDoing: dragging,
+    } = useDragOrScale({
         mainPoint: rectangle.points[0],
-        isSelected
+        isSelected,
+        eventType: "drag",
+        offset: 50
     });
 
-    // todo: check  che non convince troppo
-    useEffect(() => {
-        if (currentEvent === null && position) {
-            // handleUpdateAnnotation({...rectangle, points: [position, ...rectangle.points.slice(-1)]});
-        }
-    }, [position, currentEvent]);
-
     // todo: tipizza
-    const onClick = (e: any) => {
+    const onClick = (e: React.MouseEvent<SVGRectElement>) => {
         e.preventDefault();
         handleClick(rectangle.id);
     }
+
+    // todo: use points.at(-1)
+    const bottomRightPoint = rectangle.points[rectangle.points.length - 1];
 
     return (
         <>
@@ -47,31 +47,36 @@ const Rectangle = ({rectangle, isSelected, handleClick, handleUpdateAnnotation}:
                 fill="yellow"
                 stroke="black"
                 strokeWidth="1"
+                className={`annotation ${isSelected && "annotation-selected"}`}
                 {...isSelected && {
                     onMouseDown: dragStart,
-                    onMouseUp: dragEnd,
-                    onMouseMove: dragging
+                    onMouseMove: dragging,
+                    onMouseUp: (e) => {
+                        dragEnd(e);
+                        // todo: rottissima sta cosa
+                        handleUpdateAnnotation({
+                            ...rectangle,
+                            points: [position, rectangle.points[1], rectangle.points[2], rectangle.points[3]]
+                        });
+                    }
                 }}
             />
-            {/*<text*/}
-            {/*    x={(topLeft.x + topRight.x) / 2}*/}
-            {/*    y={(topLeft.y + bottomRight.y) / 2}*/}
-            {/*    strokeWidth="1px"*/}
-            {/*    textAnchor="middle"*/}
-            {/*    alignmentBaseline="central"*/}
-            {/*>*/}
-            {/*    {rectangle.tag}*/}
-            {/*</text>*/}
-            {/*{*/}
-            {/*    rectangle.points.map(point => (*/}
-            {/*        <circle*/}
-            {/*            cx={point.x}*/}
-            {/*            cy={point.y}*/}
-            {/*            r="5"*/}
-            {/*            fill="black"*/}
-            {/*        />*/}
-            {/*    ))*/}
-            {/*}*/}
+            <text
+                x={(topLeft.x + topRight.x) / 2}
+                y={(topLeft.y + bottomRight.y) / 2}
+                strokeWidth="1px"
+                textAnchor="middle"
+                alignmentBaseline="central"
+            >
+                {rectangle.tag}
+            </text>
+            <circle
+                cx={bottomRightPoint.x}
+                cy={bottomRightPoint.y}
+                r="5"
+                fill="black"
+                className="scale-dot"
+            />
         </>
     );
 };

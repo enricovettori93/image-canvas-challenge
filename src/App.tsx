@@ -23,7 +23,7 @@ function App() {
                     event.target.value = null
                 }} onChange={handleLoadImage}/>
             </div>
-            <div className="flex flex-row">
+            <div className="flex flex-row gap-3 mt-5">
                 <div className="overflow-auto w-[80%]">
                     <Canvas />
                 </div>

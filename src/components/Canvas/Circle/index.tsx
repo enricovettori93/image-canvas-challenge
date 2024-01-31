@@ -65,13 +65,13 @@ const Circle = ({circle, handleUpdateAnnotation, isSelected, handleClick}: props
                 stroke="black"
                 strokeWidth="1"
                 fill="red"
-                className={`circle ${isSelected && "selected"}`}
+                className={`annotation ${isSelected && "annotation-selected"}`}
                 {...isSelected && {
                     onMouseDown: dragStart,
                     onMouseMove: dragging,
                     onMouseUp: (e) => {
-                        dragEnd(e);
                         handleUpdateAnnotation({...circle, center: centerPosition});
+                        dragEnd(e);
                     },
                 }}
             />
@@ -81,12 +81,15 @@ const Circle = ({circle, handleUpdateAnnotation, isSelected, handleClick}: props
                 cy={edgePoint.y}
                 r="10"
                 fill="black"
+                className="scale-dot"
                 {...isSelected && {
                     onMouseDown: scaleStart,
                     onMouseMove: scaling,
                     onMouseUp: (e) => {
+                        const radius = Math.abs(circle.center.y - dragEdgePosition.y);
+                        console.log("radius mouse up", radius)
+                        handleUpdateAnnotation({...circle, radius });
                         scaleEnd(e);
-                        handleUpdateAnnotation({...circle, radius: Math.abs(circle.center.y - dragEdgePosition.y)});
                     }
                 }}
             />

@@ -109,9 +109,10 @@ const Canvas = () => {
     }
 
     return (
-        <div className="relative">
+        <>
             <svg
-                className={`absolute w-full h-full ${toolboxSelectedMode !== ToolboxSelection.SELECTION && "pointer-events-none"}`}
+                height={imageMetadata?.height || 0} width={imageMetadata?.width || 0}
+                className={`absolute ${toolboxSelectedMode !== ToolboxSelection.SELECTION && "pointer-events-none"}`}
                 xmlns="http://www.w3.org/2000/svg">
                 {
                     circles.map(item => (
@@ -156,7 +157,7 @@ const Canvas = () => {
                 height={imageMetadata?.height || 0} width={imageMetadata?.width || 0}
             >
             </canvas>
-        </div>
+        </>
     );
 };
 
