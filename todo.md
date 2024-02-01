@@ -6,6 +6,7 @@
 - Better UI (maybe)
 
 **Known bugs**
+- Need to choose two time the same image
 - ROIs can be dragged outside the image
 - ROIs has some problems if dragged with an overflowing image
 - Drag & Scale offset is quite broken

@@ -62,7 +62,6 @@ const Canvas = () => {
 
     const handleMouseDown = (e: React.MouseEvent) => {
         if (toolboxSelectedMode === ToolboxSelection.SELECTION) return;
-        // console.log("mouse down", {...e})
         setMouseCoordinates((prev) => {
             if (!prev.initial) {
                 return {
@@ -116,15 +115,16 @@ const Canvas = () => {
         <>
             {
                 debug && (
-                    <>
+                    <span className="absolute">
                         Mouse coordinate on canvas {JSON.stringify(mouseCoordinates.hover)}
-                    </>
+                    </span>
                 )
             }
             <svg
-                height={imageMetadata?.height || 0} width={imageMetadata?.width || 0}
                 className={`absolute ${toolboxSelectedMode !== ToolboxSelection.SELECTION && "pointer-events-none"}`}
-                xmlns="http://www.w3.org/2000/svg">
+                xmlns="http://www.w3.org/2000/svg"
+                height={imageMetadata?.height || 0} width={imageMetadata?.width || 0}
+            >
                 {
                     circles.map(item => (
                         <CircleComponent
@@ -162,14 +162,12 @@ const Canvas = () => {
             </svg>
             <canvas
                 id="editor"
+                ref={canvasRef}
                 {...([ToolboxSelection.CIRCLE, ToolboxSelection.RECTANGLE].includes(toolboxSelectedMode)) && {
                     onMouseMove: handleMouseHover,
                     onMouseDown: handleMouseDown
                 }}
-                ref={canvasRef}
-                // todo: handle overflow img
-                className="w-full h-full border-2 border-blue-400"
-                // height={imageMetadata?.height || 0} width={imageMetadata?.width || 0}
+                height={imageMetadata?.height || 0} width={imageMetadata?.width || 0}
             >
             </canvas>
         </>

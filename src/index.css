@@ -17,6 +17,12 @@ body {
     min-height: 100vh;
     width: 100vw;
     padding: 1em;
+    overflow-x: hidden;
+    display: flex;
+}
+
+#root {
+    flex: 1;
 }
 
 .annotation {
