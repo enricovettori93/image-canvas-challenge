@@ -34,20 +34,24 @@ export const calculateDistanceBetweenPoints = (p1: Point, p2: Point) => {
     return Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
 }
 
+export const calculateMedianBetweenTwoPoints = (p1: Point, p2: Point): Point => {
+    return {
+        x: ((p1.x + p2.x) / 2),
+        y: ((p1.y + p2.y) / 2)
+    }
+}
+
 /**
  * Calculate the radius and the center between two points for generate a circle
  * @param p1
  * @param p2
  */
-export const calculateCenterAndRadius = (p1: Point, p2: Point) => {
-    const medianPoint = {
-        x: ((p1.x + p2.x) / 2),
-        y: ((p1.y + p2.y) / 2)
-    }
+export const calculateCircleCenterAndRadiusFromTwoPoints = (p1: Point, p2: Point) => {
+    const {x, y} = calculateMedianBetweenTwoPoints(p1, p2);
     return {
         radius: calculateDistanceBetweenPoints(p1, p2) / 2,
-        x: medianPoint.x,
-        y: medianPoint.y
+        x,
+        y
     }
 }
 
@@ -62,11 +66,37 @@ export const calculateCenterAndRadius = (p1: Point, p2: Point) => {
  * @param p1
  * @param p2
  */
-export const calculateFourAngles = (p1: Point, p2: Point) => {
+export const calculateRectangleFromTwoPoints = (p1: Point, p2: Point) => {
     const points: Point[] = [];
     points.push(p1);
     points.push({x: p2.x, y: p1.y});
     points.push({x: p1.x, y: p2.y});
     points.push(p2);
     return points;
+}
+
+export const calculateNewRectangleFromPointAndSizes = ({point, height, width}: {
+    point: Point,
+    height: number,
+    width: number
+}) => {
+    return [
+        point,
+        {
+            x: point.x + width,
+            y: point.y
+        },
+        {
+            x: point.x,
+            y: point.y + height
+        },
+        {
+            x: point.x + width,
+            y: point.y + height
+        }
+    ]
+}
+
+export const askForLabelName = (prev = '') => {
+    return prompt(prev ? "Edit annotation" : "Add annotation", prev);
 }

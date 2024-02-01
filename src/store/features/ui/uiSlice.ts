@@ -3,15 +3,18 @@ import {createAsyncThunk, createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {loadFileIntoCanvas} from "../../../shared/helpers";
 
 const initialState: UiSlice = {
-    hasLoadedImage: false,
-    error: null,
-    imageMetadata: null,
-    toolboxMode: ToolboxSelection.CIRCLE
+    image: {
+        loading: false,
+        error: null,
+        metadata: null,
+    },
+    debug: false,
+    toolboxMode: ToolboxSelection.RECTANGLE
 }
 
 export const loadImageFromURL = createAsyncThunk(
     'ui/loadImageFromUrl',
-    async (file: File, { rejectWithValue }) => {
+    async (file: File, {rejectWithValue}) => {
         try {
             return await loadFileIntoCanvas(file);
         } catch (e) {
@@ -24,21 +27,29 @@ export const uiSlice = createSlice({
     name: "ui",
     initialState,
     reducers: {
-        changeToolboxMode: (state, { payload }: PayloadAction<ToolboxSelection>) => {
+        changeToolboxMode: (state, {payload}: PayloadAction<ToolboxSelection>) => {
             state.toolboxMode = payload;
-        }
+        },
+        setDebug: (state, {payload}: PayloadAction<boolean>) => {
+            state.debug = payload;
+        },
     },
     extraReducers: builder => {
-        builder.addCase(loadImageFromURL.fulfilled, (state, { payload }) => {
-            state.hasLoadedImage = true;
-            state.imageMetadata = payload as ImageMetadata;
-            state.error = null;
+        builder.addCase(loadImageFromURL.pending, (state) => {
+            state.image.loading = true;
+            state.image.error = null;
         })
-        builder.addCase(loadImageFromURL.rejected, (state, { payload }) => {
-            state.error = payload as string;
+        builder.addCase(loadImageFromURL.rejected, (state, {payload}) => {
+            state.image.loading = false;
+            state.image.error = payload as string;
+        })
+        builder.addCase(loadImageFromURL.fulfilled, (state, {payload}) => {
+            state.image.loading = false;
+            state.image.metadata = payload as ImageMetadata;
+            state.image.error = null;
         })
     }
 })
 
-export const { changeToolboxMode } = uiSlice.actions;
+export const {changeToolboxMode, setDebug} = uiSlice.actions;
 export default uiSlice.reducer;

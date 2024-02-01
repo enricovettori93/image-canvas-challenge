@@ -20,16 +20,23 @@ body {
 }
 
 .annotation {
-    opacity: 0.5;
+    opacity: 0.3;
     transition: opacity .2s ease-in-out;
 }
 
-.annotation:hover {
-    opacity: 0.7;
+.annotation:hover, .annotation *:hover {
+    opacity: 0.5;
     cursor: pointer;
 }
 
-.annotation.annotation-selected, .annotation.annotation-selected + .scale-dot {
+.annotation.annotation-selected {
     opacity: 1;
+}
+
+.annotation.annotation-selected + .scale-dot {
     cursor: grab;
+}
+
+.annotation.annotation-selected + .annotation-tag {
+    pointer-events: none;
 }

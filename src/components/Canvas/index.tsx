@@ -17,19 +17,20 @@ import {default as RectangleComponent} from "./Rectangle";
 
 const Canvas = () => {
     const canvasRef = createRef<HTMLCanvasElement>();
-    // todo: use this variable to show a preview of what's happening on the screen
-    const [isDrawing, setIsDrawing] = useState(false);
+    const [, setIsDrawing] = useState(false);
     const [mouseCoordinates, setMouseCoordinates] = useState<{
         initial: Point | null,
         hover: Point | null,
         final: Point | null
     }>({initial: null, hover: null, final: null});
+    const dispatch = useDispatch();
     const circles = useSelector((state: RootState) => state.annotations.circles);
     const rectangles = useSelector((state: RootState) => state.annotations.rectangles);
     const selectedAnnotationId = useSelector((state: RootState) => state.annotations.selectedAnnotationId);
-    const imageMetadata = useSelector((state: RootState) => state.ui.imageMetadata);
+    const imageMetadata = useSelector((state: RootState) => state.ui.image.metadata);
+    const imageError = useSelector((state: RootState) => state.ui.image.error);
     const toolboxSelectedMode = useSelector((state: RootState) => state.ui.toolboxMode);
-    const dispatch = useDispatch();
+    const debug = useSelector((state: RootState) => state.ui.debug);
 
     const reset = () => {
         setIsDrawing(false);
@@ -50,7 +51,6 @@ const Canvas = () => {
 
     useEffect(() => {
         const {initial, final} = mouseCoordinates;
-        // console.log("changed mouse coordinates", mouseCoordinates)
         if (initial && !final) {
             setIsDrawing(true);
         }
@@ -80,9 +80,7 @@ const Canvas = () => {
         });
     }
 
-    // todo: type any
-    const handleMouseHover = (e: any) => {
-        if (!isDrawing) return;
+    const handleMouseHover = (e: React.MouseEvent<HTMLCanvasElement>) => {
         setMouseCoordinates(prev => ({
             ...prev,
             hover: {x: e.clientX - X_CANVAS_DELTA, y: e.clientY - Y_CANVAS_DELTA}
@@ -108,8 +106,21 @@ const Canvas = () => {
         dispatch(selectAnnotation(id));
     }
 
+    if (imageError) {
+        return (
+            <p className="text-red-500 text-3xl">Error loading the image {imageError}</p>
+        )
+    }
+
     return (
         <>
+            {
+                debug && (
+                    <>
+                        Mouse coordinate on canvas {JSON.stringify(mouseCoordinates.hover)}
+                    </>
+                )
+            }
             <svg
                 height={imageMetadata?.height || 0} width={imageMetadata?.width || 0}
                 className={`absolute ${toolboxSelectedMode !== ToolboxSelection.SELECTION && "pointer-events-none"}`}
@@ -119,6 +130,7 @@ const Canvas = () => {
                         <CircleComponent
                             key={item.id}
                             circle={item}
+                            currentMousePosition={mouseCoordinates.hover}
                             isSelected={item.id === selectedAnnotationId}
                             handleUpdateAnnotation={handleUpdateAnnotation}
                             handleClick={handleClick}
@@ -130,6 +142,7 @@ const Canvas = () => {
                         <RectangleComponent
                             key={item.id}
                             rectangle={item}
+                            currentMousePosition={mouseCoordinates.hover}
                             isSelected={item.id === selectedAnnotationId}
                             handleUpdateAnnotation={handleUpdateAnnotation}
                             handleClick={handleClick}
@@ -154,7 +167,9 @@ const Canvas = () => {
                     onMouseDown: handleMouseDown
                 }}
                 ref={canvasRef}
-                height={imageMetadata?.height || 0} width={imageMetadata?.width || 0}
+                // todo: handle overflow img
+                className="w-full h-full border-2 border-blue-400"
+                // height={imageMetadata?.height || 0} width={imageMetadata?.width || 0}
             >
             </canvas>
         </>

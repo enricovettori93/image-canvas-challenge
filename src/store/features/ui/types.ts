@@ -11,8 +11,11 @@ export interface ImageMetadata {
 }
 
 export interface UiSlice {
-    hasLoadedImage: boolean
-    error: null | string
-    imageMetadata: ImageMetadata | null
+    image: {
+        loading: boolean
+        error: null | string
+        metadata: ImageMetadata | null
+    }
+    debug: boolean
     toolboxMode: ToolboxSelection
 }
