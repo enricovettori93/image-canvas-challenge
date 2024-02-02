@@ -38,7 +38,7 @@ const Canvas = () => {
 
     const reset = () => {
         setIsDrawing(false);
-        setMouseCoordinates({initial: null, final: null, hover: null});
+        setMouseCoordinates(prev => ({...prev, initial: null, final: null}));
     }
 
     useEffect(() => {
@@ -83,7 +83,7 @@ const Canvas = () => {
         });
     }
 
-    const handleMouseHover = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const handleMouseHover = (e: React.MouseEvent) => {
         setMouseCoordinates(prev => ({
             ...prev,
             hover: {x: e.clientX - X_CANVAS_DELTA, y: e.clientY - Y_CANVAS_DELTA}
@@ -147,6 +147,9 @@ const Canvas = () => {
             <svg
                 className={`absolute ${toolboxSelectedMode !== ToolboxSelection.SELECTION && "pointer-events-none"}`}
                 xmlns="http://www.w3.org/2000/svg"
+                {...([ToolboxSelection.SELECTION].includes(toolboxSelectedMode)) && {
+                    onMouseMove: handleMouseHover
+                }}
                 height={imageMetadata?.height || 0} width={imageMetadata?.width || 0}
             >
                 {
@@ -188,8 +191,8 @@ const Canvas = () => {
                 id="editor"
                 ref={canvasRef}
                 {...([ToolboxSelection.CIRCLE, ToolboxSelection.RECTANGLE].includes(toolboxSelectedMode)) && {
-                    onMouseMove: handleMouseHover,
-                    onMouseDown: handleMouseDown
+                    onMouseDown: handleMouseDown,
+                    onMouseMove: handleMouseHover
                 }}
                 height={imageMetadata?.height || 0} width={imageMetadata?.width || 0}
             >

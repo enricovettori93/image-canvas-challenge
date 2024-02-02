@@ -94,7 +94,7 @@ const Circle = ({circle, handleUpdateAnnotation, isSelected, handleClick}: props
                 r={radius}
                 stroke="black"
                 strokeWidth="1"
-                fill="red"
+                fill={circle.color}
                 className={`annotation ${isSelected && "annotation-selected"}`}
                 {...isSelected && {
                     onMouseDown: dragStart,

@@ -14,8 +14,10 @@ export const loadFileIntoCanvas = (file: File) => {
         image.src = URL.createObjectURL(file);
 
         image.addEventListener("load", () => {
-            ctx?.clearRect(0, 0, image.width, image.height);
-            ctx?.drawImage(image, 0, 0, image.width, image.height);
+            requestAnimationFrame(() => {
+                ctx?.clearRect(0, 0, image.width, image.height);
+                ctx?.drawImage(image, 0, 0, image.width, image.height);
+            })
             resolve({
                 src: image.src,
                 height: image.height,
@@ -123,4 +125,16 @@ export const transformPointInNormalizedCoordinates = ({p, width, height}: {p: Po
 
 export const askForLabelName = (prev = '') => {
     return prompt(prev ? "Edit annotation" : "Add annotation", prev);
+}
+
+export const generateColor = () => {
+    // thx chatgpt
+    const red = Math.floor(Math.random() * 256);
+    const green = Math.floor(Math.random() * 256);
+    const blu = Math.floor(Math.random() * 256);
+
+    return "#" +
+        red.toString(16).padStart(2, '0') +
+        green.toString(16).padStart(2, '0') +
+        blu.toString(16).padStart(2, '0');
 }

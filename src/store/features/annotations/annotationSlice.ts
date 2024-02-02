@@ -2,6 +2,7 @@ import {createSlice} from "@reduxjs/toolkit";
 import type {PayloadAction} from "@reduxjs/toolkit";
 import {AnnotationSlice} from "./types.ts";
 import {Circle, Rectangle} from "../../../shared/interfaces/Annotation.ts";
+import {loadImageFromURL} from "../ui/uiSlice.ts";
 
 const initialState: AnnotationSlice = {
     circles: [],
@@ -31,6 +32,13 @@ export const annotationSlice = createSlice({
         selectAnnotation: (state, {payload}: PayloadAction<string | null>) => {
             state.selectedAnnotationId = state.selectedAnnotationId === payload ? null : payload;
         }
+    },
+    extraReducers: builder => {
+        builder.addCase(loadImageFromURL.pending, (state) => {
+            state.circles = [];
+            state.rectangles = [];
+            state.selectedAnnotationId = null;
+        })
     }
 })
 
