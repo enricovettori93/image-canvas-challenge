@@ -6,7 +6,11 @@ const initialState: UiSlice = {
     image: {
         loading: false,
         error: null,
-        metadata: null,
+        metadata: {
+            width: 0,
+            height: 0,
+            src: ""
+        },
     },
     debug: false,
     toolboxMode: ToolboxSelection.RECTANGLE

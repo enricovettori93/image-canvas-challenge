@@ -22,6 +22,7 @@ const useScale = ({isSelected, mainPoint, eventType, offsetY = 0, offsetX = 0}: 
     }, [isSelected]);
 
     const eventStart = (e: React.MouseEvent<any>) => {
+        console.log(`>> event ${eventType} start start`, {...e})
         if (!isSelected) return;
         console.log(`>> event ${eventType} start`, {x: e.clientX, y: e.clientY});
         e.stopPropagation();

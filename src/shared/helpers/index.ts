@@ -1,9 +1,13 @@
 import {ImageMetadata} from "../../store/features/ui/types.ts";
 import {Point} from "../interfaces/Point.ts";
 
+/**
+ * Draw an image into the main canvas
+ * @param file
+ */
 export const loadFileIntoCanvas = (file: File) => {
     console.log("loading image from", file)
-    const canvas = document.getElementById('editor') as HTMLCanvasElement;
+    const canvas = document.querySelector<HTMLCanvasElement>('#editor');
     const ctx = canvas?.getContext('2d');
     return new Promise<ImageMetadata>((resolve, reject) => {
         const image = new Image();
@@ -56,7 +60,7 @@ export const calculateCircleCenterAndRadiusFromTwoPoints = (p1: Point, p2: Point
 }
 
 /**
- * Calculate from two points the 4 points required for a rectangle
+ * Calculate from 2 points (p[0] and p[3] coordinated) the 4 points required for a rectangle
  *
  * p[0] --- p[1]
  * |          |
@@ -75,6 +79,12 @@ export const calculateRectangleFromTwoPoints = (p1: Point, p2: Point) => {
     return points;
 }
 
+/**
+ * Calculate a rectangle starting from the top left edge and width / height
+ * @param point
+ * @param height
+ * @param width
+ */
 export const calculateNewRectangleFromPointAndSizes = ({point, height, width}: {
     point: Point,
     height: number,
@@ -95,6 +105,20 @@ export const calculateNewRectangleFromPointAndSizes = ({point, height, width}: {
             y: point.y + height
         }
     ]
+}
+
+export const transformNormalizedCoordinatesInPoint = ({p, width, height}: {p: Point, width: number, height: number}): Point => {
+    return {
+        x: p.x * width,
+        y: p.y * height
+    }
+}
+
+export const transformPointInNormalizedCoordinates = ({p, width, height}: {p: Point, width: number, height: number}): Point => {
+    return {
+        x: p.x / width,
+        y: p.y / height
+    }
 }
 
 export const askForLabelName = (prev = '') => {

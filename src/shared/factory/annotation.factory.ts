@@ -5,7 +5,6 @@ import {Point} from "../interfaces/Point.ts";
 
 export default class AnnotationFactory {
     static createCircle({initial, final}: { initial: Point, final: Point }): Circle {
-        // todo: normalizzare la coordinata
         const {x, y, radius} = calculateCircleCenterAndRadiusFromTwoPoints(initial, final);
         // todo: fai meglio
         // const tag = prompt("Please enter an annotation tag");
@@ -14,7 +13,6 @@ export default class AnnotationFactory {
     }
 
     static createRectangle({initial, final}: { initial: Point, final: Point }): Rectangle {
-        // todo: normalizzare la coordinata
         const points = calculateRectangleFromTwoPoints(initial, final);
         // todo: fai meglio
         // const tag = prompt("Please enter an annotation tag");

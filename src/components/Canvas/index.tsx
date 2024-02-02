@@ -14,6 +14,10 @@ import {ToolboxSelection} from "../../store/features/ui/types.ts";
 import {Circle, Rectangle} from "../../shared/interfaces/Annotation.ts";
 import {X_CANVAS_DELTA, Y_CANVAS_DELTA} from "../../shared/constants";
 import {default as RectangleComponent} from "./Rectangle";
+import {circlesSelector, rectanglesSelector} from "../../store/features/annotations/selectors.ts";
+import {metadataSelector} from "../../store/features/ui/selectors.ts";
+import CircleAdapter from "../../shared/adapters/circle.adapter.ts";
+import RectangleAdapter from "../../shared/adapters/rectangle.adapter.ts";
 
 const Canvas = () => {
     const canvasRef = createRef<HTMLCanvasElement>();
@@ -24,10 +28,10 @@ const Canvas = () => {
         final: Point | null
     }>({initial: null, hover: null, final: null});
     const dispatch = useDispatch();
-    const circles = useSelector((state: RootState) => state.annotations.circles);
-    const rectangles = useSelector((state: RootState) => state.annotations.rectangles);
+    const circles = useSelector(circlesSelector);
+    const rectangles = useSelector(rectanglesSelector);
     const selectedAnnotationId = useSelector((state: RootState) => state.annotations.selectedAnnotationId);
-    const imageMetadata = useSelector((state: RootState) => state.ui.image.metadata);
+    const imageMetadata = useSelector(metadataSelector);
     const imageError = useSelector((state: RootState) => state.ui.image.error);
     const toolboxSelectedMode = useSelector((state: RootState) => state.ui.toolboxMode);
     const debug = useSelector((state: RootState) => state.ui.debug);
@@ -89,16 +93,36 @@ const Canvas = () => {
     const handleNewRegion = ({initial, final}: { initial: Point, final: Point }) => {
         switch (toolboxSelectedMode) {
             case ToolboxSelection.CIRCLE:
-                dispatch(addCircle(AnnotationFactory.createCircle({initial, final})));
+                dispatch(addCircle(CircleAdapter.fromCanvasCoordinateToNormalizedCoordinate({
+                    annotation: AnnotationFactory.createCircle({initial, final}),
+                    imageHeight: imageMetadata.height,
+                    imageWidth: imageMetadata.width,
+                })));
                 break;
             case ToolboxSelection.RECTANGLE:
-                dispatch(addRectangle(AnnotationFactory.createRectangle({initial, final})));
+                dispatch(addRectangle(RectangleAdapter.fromCanvasCoordinateToNormalizedCoordinate({
+                    annotation: AnnotationFactory.createRectangle({initial, final}),
+                    imageHeight: imageMetadata.height,
+                    imageWidth: imageMetadata.width
+                })));
                 break;
         }
     }
 
-    const handleUpdateAnnotation = (item: Circle | Rectangle) => {
-        dispatch(updateAnnotation(item));
+    const handleUpdateRectangle = (item: Rectangle) => {
+        dispatch(updateAnnotation(RectangleAdapter.fromCanvasCoordinateToNormalizedCoordinate({
+            annotation: item,
+            imageHeight: imageMetadata.height,
+            imageWidth: imageMetadata.width
+        })));
+    }
+
+    const handleUpdateCircle = (item: Circle) => {
+        dispatch(updateAnnotation(CircleAdapter.fromCanvasCoordinateToNormalizedCoordinate({
+            annotation: item,
+            imageHeight: imageMetadata.height,
+            imageWidth: imageMetadata.width,
+        })));
     }
 
     const handleClick = (id: string) => {
@@ -132,7 +156,7 @@ const Canvas = () => {
                             circle={item}
                             currentMousePosition={mouseCoordinates.hover}
                             isSelected={item.id === selectedAnnotationId}
-                            handleUpdateAnnotation={handleUpdateAnnotation}
+                            handleUpdateAnnotation={handleUpdateCircle}
                             handleClick={handleClick}
                         />
                     ))
@@ -144,7 +168,7 @@ const Canvas = () => {
                             rectangle={item}
                             currentMousePosition={mouseCoordinates.hover}
                             isSelected={item.id === selectedAnnotationId}
-                            handleUpdateAnnotation={handleUpdateAnnotation}
+                            handleUpdateAnnotation={handleUpdateRectangle}
                             handleClick={handleClick}
                         />
                     ))
